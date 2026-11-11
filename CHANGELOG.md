@@ -1,6 +1,9 @@
 # Changelog
 
-## Unreleased
+## v0.9.0 - 2026-11-11
+
+After upgrading, run `piggery restart`, then `piggery setup --outdated`: the pi and omp
+integrations are now 6 and dsh 7; restart open pi sessions or `/reload` them.
 
 - Built with Go 1.26.11, which fixes vulnerabilities in `net/http`, `crypto/tls`, `crypto/x509`
   and `net/textproto` that affect Go 1.26.8.
@@ -62,10 +65,10 @@
   harness profile (`~/.piggery/harness/<h>.json`) and per template role (`spawn.harness`,
   `spawn.model`, `spawn.thinking` in `~/.piggery/templates/<t>/manifest.yaml`), and each template's
   `limits` (`depth`, `concurrency`: live workers at once per team, the message and respawn rates).
-  A save writes that
-  value in place and keeps the rest of the file (comments, order, layout); a template's change is
-  checked as `team up` loads it (a role that can spawn with `concurrency: none` is refused), and its warnings (a model pinned with harness
-  `inherit`) are shown. Nothing restarts: teams founded from then on use it, a team already up
+  A save writes that value in place and keeps the rest of the file (comments, order, layout); a
+  template's change is checked as `team up` loads it (a role that can spawn with
+  `concurrency: none` is refused), and its warnings (a model pinned with harness `inherit`) are
+  shown. Nothing restarts: teams founded from then on use it, a team already up
   keeps its own.
 
 ## v0.8.1 - 2026-10-05
