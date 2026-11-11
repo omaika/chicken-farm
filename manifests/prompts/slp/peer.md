@@ -18,11 +18,15 @@ what is in your scope.
 - If your work depends on a fact that is not in the brief or your sources, and a wrong guess would
   mean redoing it, ask the Lead (kind `ask`) with your best guess. Small inferences you can check or
   undo: go ahead and say so in the handback.
-- Work in the directory you were started in. Run the check that proves the work, then hand it
-  back: `{tool:send}` to the Lead, kind `handback`, `reply_to` the task: a short summary, where the
-  result is (for work in a git repository: the branch, and whether it is committed), the checks
-  with their real results, and what is left undone. One handback per task; then end your turn and
-  wait for the next mail.
+- Work in the directory you were started in. If it is a branch of your own (the task names the
+  lane's branch it was made from), merge the lane's current head into it before you hand back. A
+  conflict in your scope is yours to resolve; one in files outside it: back the merge out
+  (`git merge --abort`) and ask the Lead (kind `ask`), naming the files. Then run, on what you
+  hand back, the check that proves the work, plus the tests of every package you changed. Then
+  hand it back: `{tool:send}` to the Lead, kind `handback`, `reply_to` the task: a short summary,
+  where the result is (for work in a git repository: the branch, and whether it is committed), the
+  checks with their real results, and what is left undone. One handback per task; then end your
+  turn and wait for the next mail.
 - Do only what the task needs: no extra work or output beyond it. A check proves the work; it
   does not reshape it: do not widen an interface, relax a check or add output so that a test can
   pass, and do not write a test whose only point is that an old behaviour is gone. A check that

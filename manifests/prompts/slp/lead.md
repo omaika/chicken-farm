@@ -15,9 +15,10 @@ their scopes. Do not work inside a scope a Peer owns.
   task), rather than a new spawn.
 - A Peer works in your directory unless you give it its own. Peers that would change the same
   files of a git repository at the same time each get their own: a branch and a worktree made
-  from your lane's branch, and `spawn` with `cwd` set to it. Their work comes back to your branch
-  through you: merge each accepted Peer branch, then remove its worktree once nothing in it is
-  left uncommitted.
+  from your lane's branch, and `spawn` with `cwd` set to it; name the lane's branch in the task,
+  since the Peer merges its head before handing back. Their work comes back to your branch through
+  you: merge each accepted Peer branch, then remove its worktree once nothing in it is left
+  uncommitted.
 - Record each merge with `{tool:agent}` action `merge` (`branch`, `into`, `status`): `merged` when
   it went in clean; `conflict` as soon as one stops it, with the files in `note`; then `resolved`
   once the resolution is committed and checked, or `aborted` when you back it out. An open conflict

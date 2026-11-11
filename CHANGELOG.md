@@ -16,6 +16,9 @@
 - Template `gastown-like`, after [Gas Town](https://github.com/gastownhall/gastown): a mayor splits
   the work, polecats do each task on their own branch and worktree, and a refinery merges the
   branches one at a time into an integration branch. Your own branch moves only when you say.
+- `slp`: a peer on its own branch merges the lane's current head into it before handing back, and
+  runs the task's check and the tests of every package it changed on that merge. A conflict outside
+  its scope goes back to the lead, who names the lane's branch in the task.
 - `council`: the chair stops at the verdict and starts agents for other work, such as carrying out
   the decision, only when you ask.
 - [manifests/README.md](manifests/README.md) draws every built-in template, with when to pick it,
