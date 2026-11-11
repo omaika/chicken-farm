@@ -8,6 +8,7 @@ import net from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
+import { socketPath } from "../pi/client.mjs";
 
 // pi-ai is only used for the tools' parameter schemas; Unsafe keeps tools.json's schema as is.
 const piAi = "export const Type = new Proxy({}, { get: (_, k) => (k === 'Unsafe' ? (s) => s : (...a) => ({ a })) });";
@@ -33,6 +34,7 @@ const fixture = (name) =>
 
 test("the omp extension against a fake daemon", async (t) => {
 	process.env.HOME = mkdtempSync(join(tmpdir(), "pgomp"));
+	process.env.USERPROFILE = process.env.HOME; // os.homedir() on Windows
 	mkdirSync(join(process.env.HOME, ".piggery"));
 	delete process.env.PIGGERY_ID;
 	delete process.env.PIGGERY_TOKEN;
@@ -64,7 +66,7 @@ test("the omp extension against a fake daemon", async (t) => {
 			}
 		});
 	});
-	await new Promise((r) => srv.listen(join(process.env.HOME, ".piggery", "piggery.sock"), r));
+	await new Promise((r) => srv.listen(socketPath(join(process.env.HOME, ".piggery")), r));
 	t.after(() => srv.close());
 	const push = (frame) => socks.forEach((s) => s.write(JSON.stringify(frame) + "\n"));
 

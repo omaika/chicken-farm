@@ -33,6 +33,7 @@ func jsonString(s string) string {
 // extension (at the -e path, a copy found by its package.json name, and extensions/piggery). A dir is never
 // reused.
 func TestBuildAgentDir(t *testing.T) {
+	needSymlinks(t)
 	home, _ := filepath.EvalSymlinks(t.TempDir())
 	src := filepath.Join(home, ".pi", "agent")
 	repo := filepath.Join(home, "code", "piggery")
@@ -153,8 +154,11 @@ func TestBuildOmpAgentDir(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, name := range []string{"models.yml", "agent.db"} {
-		if target, err := os.Readlink(filepath.Join(dst, name)); err != nil || target != filepath.Join(src, name) {
-			t.Fatalf("%s -> %q, %v; want a symlink to the human's", name, target, err)
+		// a symlink, or a hard link where this user may not create one (platform.Link)
+		mine, err1 := os.Stat(filepath.Join(dst, name))
+		theirs, err2 := os.Stat(filepath.Join(src, name))
+		if err1 != nil || err2 != nil || !os.SameFile(mine, theirs) {
+			t.Fatalf("%s: %v, %v; want a link to the human's", name, err1, err2)
 		}
 	}
 	exts, _ := os.ReadDir(filepath.Join(dst, "extensions"))

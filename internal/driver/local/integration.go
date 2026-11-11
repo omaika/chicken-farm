@@ -11,7 +11,7 @@ var integrationVersions = map[string]int{
 	"pi":       6,
 	"omp":      6,
 	"dsh":      7,
-	"opencode": 1,
+	"opencode": 2,
 	"claude":   1,
 	"codex":    1,
 	"paseo":    3,

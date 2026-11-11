@@ -1,13 +1,15 @@
-// Test helpers: a fake piggery daemon on a unix socket, and the little of dsh (a Cordis context and
-// its agents) the plugin touches.
+// Test helpers: a fake piggery daemon on the daemon's socket (a named pipe on Windows), and the
+// little of dsh (a Cordis context and its agents) the plugin touches.
 import { mkdirSync, mkdtempSync } from "node:fs";
 import net from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { socketPath } from "../pi/client.mjs";
 
 /** HOME is a fresh directory with ~/.piggery; returns it. */
 export function tempHome() {
 	process.env.HOME = mkdtempSync(join(tmpdir(), "pgdsh"));
+	process.env.USERPROFILE = process.env.HOME; // os.homedir() on Windows
 	mkdirSync(join(process.env.HOME, ".piggery"));
 	return process.env.HOME;
 }
@@ -26,6 +28,7 @@ export async function fakeDaemon(home, answer) {
 	const srv = net.createServer((s) => {
 		socks.add(s);
 		s.on("close", () => socks.delete(s));
+		s.on("error", () => {}); // a client that hung up before its answer (EPIPE on a Windows pipe)
 		let buf = "";
 		s.on("data", (d) => {
 			buf += d;
@@ -37,7 +40,7 @@ export async function fakeDaemon(home, answer) {
 			}
 		});
 	});
-	await new Promise((r) => srv.listen(join(home, ".piggery", "piggery.sock"), r));
+	await new Promise((r) => srv.listen(socketPath(join(home, ".piggery")), r));
 	return {
 		calls,
 		close: () => {

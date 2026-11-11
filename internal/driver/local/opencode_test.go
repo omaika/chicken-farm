@@ -11,7 +11,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"slices"
 	"strconv"
@@ -62,7 +61,7 @@ func TestOpencodeHelperProcess(t *testing.T) {
 	}
 	logLine(map[string]any{"env": env, "args": os.Args})
 	// a tool's shell: its own process group, so a signal to serve's group misses it
-	child := exec.Command("sleep", "300")
+	child := sleeper(300)
 	platform.NewGroup(child)
 	child.Start()
 	os.WriteFile(os.Getenv("PGDRV_CHILD"), []byte(strconv.Itoa(child.Process.Pid)), 0o600)

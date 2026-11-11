@@ -20,11 +20,11 @@
 // event, and the daemon connection is made then.
 import { spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { appendFileSync, closeSync, existsSync, fstatSync, mkdirSync, openSync, readFileSync } from "node:fs";
+import { appendFileSync, closeSync, fstatSync, mkdirSync, openSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { Turns } from "../pi/adapter.mjs";
-import { Client } from "../pi/client.mjs";
+import { Client, socketExists, socketPath } from "../pi/client.mjs";
 import { afterRetire, render, renderWho, sentText } from "../pi/render.mjs";
 import { Bridge, NUDGE } from "./bridge.mjs";
 import { Records } from "./records.mjs";
@@ -74,7 +74,7 @@ class Host {
 		this.directory = input.directory;
 		this.sessions = options.sessions ?? join(homedir(), ".piggery", "sessions", "opencode"); // where a TUI session keeps its records, <id>/records.jsonl
 		this.worker = proc.worker;
-		this.sockPath = join(homedir(), ".piggery", "piggery.sock");
+		this.sockPath = socketPath(join(homedir(), ".piggery"));
 		this.info = new Map(); // session id -> opencode's session info, from session.created
 		this.roots = new Map(); // session id -> Promise<Part | null>
 		this.models = new Map(); // session id -> the model its latest user message named
@@ -170,7 +170,7 @@ class Host {
 		if (w && (w.session ? sid !== w.session : info.metadata?.piggery_participant !== w.auth.id)) return null;
 		const part = new Part(this, sid, info);
 		part.start();
-		if (existsSync(this.sockPath)) await Promise.race([part.identified, sleep(1500)]);
+		if (socketExists(this.sockPath)) await Promise.race([part.identified, sleep(1500)]);
 		return part;
 	}
 
@@ -443,7 +443,7 @@ class Part {
 	async ensureConnected() {
 		if (this.stale) throw new Error("this opencode session no longer drives a piggery participant");
 		if (this.client?.ready) return;
-		if (!existsSync(this.host.sockPath)) await startDaemon(this.host.sockPath);
+		if (!socketExists(this.host.sockPath)) await startDaemon(this.host.sockPath);
 		this.client?.stop();
 		this.startClient(this.envAuth ?? this.auth);
 		for (let i = 0; i < 100 && !this.client?.ready && !this.stale; i++) await sleep(100);
@@ -516,7 +516,7 @@ const TOOL_BODIES = {
 };
 
 async function startDaemon(sock) {
-	const dir = dirname(sock);
+	const dir = join(homedir(), ".piggery");
 	mkdirSync(dir, { recursive: true, mode: 0o700 });
 	// Like the CLI autostart: append to serve.log (0600), own session (detached = setsid), released.
 	const logFile = join(dir, "serve.log");
@@ -524,7 +524,7 @@ async function startDaemon(sock) {
 	const from = fstatSync(out).size;
 	let exited = false; // serve ended before its socket appeared: it could not start
 	await new Promise((resolve, reject) => {
-		const d = spawn("piggery", ["serve"], { detached: true, stdio: ["ignore", out, out] });
+		const d = spawn("piggery", ["serve"], { detached: true, windowsHide: true, stdio: ["ignore", out, out] });
 		d.on("error", (e) => reject(new Error(e.code === "ENOENT" ? "the piggery binary is not on PATH (see https://github.com/sting8k/piggery/blob/main/docs/guide.md)" : e.message)));
 		d.on("exit", () => (exited = true));
 		d.on("spawn", () => {
@@ -532,8 +532,8 @@ async function startDaemon(sock) {
 			resolve();
 		});
 	}).finally(() => closeSync(out));
-	for (let i = 0; i < 50 && !existsSync(sock) && !exited; i++) await sleep(100);
-	if (existsSync(sock)) return;
+	for (let i = 0; i < 50 && !socketExists(sock) && !exited; i++) await sleep(100);
+	if (socketExists(sock)) return;
 	// Its reason is the last line it wrote to the log (e.g. a bad config.yaml).
 	const lines = readFileSync(logFile).subarray(from).toString("utf8").trim().split("\n");
 	const why = (lines[lines.length - 1] ?? "").replace(/^piggery serve: /, "").trim() || "piggery serve exited";

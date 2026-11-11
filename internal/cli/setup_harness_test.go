@@ -134,8 +134,7 @@ func TestSetupClaudeInstallRemove(t *testing.T) {
 	home, bin := t.TempDir(), t.TempDir()
 	t.Setenv("HOME", home)
 	t.Setenv("USERPROFILE", home) // os.UserHomeDir on Windows
-	exe, _ := os.Executable()
-	os.Symlink(exe, filepath.Join(bin, "claude"+exeSuffix))
+	fakeProgram(t, bin, "claude")
 	t.Setenv("PATH", bin)
 	log := filepath.Join(home, "argv")
 	t.Setenv("PIGGERY_FAKE_CLAUDE", log)

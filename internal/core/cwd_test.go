@@ -97,7 +97,7 @@ func TestSpawnCwdBounds(t *testing.T) {
 		t.Fatal(err)
 	}
 	if err := os.Symlink(outside, filepath.Join(root, "escape")); err != nil {
-		t.Fatal(err)
+		t.Skip("this user may not create symlinks: " + err.Error()) // Windows without Developer Mode
 	}
 	f := newCwdFixture(t, root, allowed)
 	spawn := func(by core.Caller, name, cwd string) (string, error) {

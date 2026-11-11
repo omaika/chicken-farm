@@ -35,6 +35,7 @@ func TestUpdate(t *testing.T) {
 	mux.HandleFunc("/linux", func(w http.ResponseWriter, _ *http.Request) { w.Write(newBin) })
 	mux.HandleFunc("/sums", func(w http.ResponseWriter, _ *http.Request) { io.WriteString(w, sums) })
 
+	needSymlinks(t)
 	dir := t.TempDir()
 	exe := filepath.Join(dir, "piggery")
 	if err := os.WriteFile(exe, []byte("old"), 0o750); err != nil {

@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"os/exec"
 	"os/signal"
 	"path/filepath"
 	"slices"
@@ -107,7 +106,7 @@ func TestHelperProcess(t *testing.T) {
 	case "polite":
 		term := make(chan os.Signal, 1)
 		signal.Notify(term, syscall.SIGTERM)
-		own := exec.Command("sleep", "60")
+		own := sleeper(60)
 		platform.NewGroup(own)
 		if err := own.Start(); err != nil {
 			os.Exit(3)
@@ -117,11 +116,11 @@ func TestHelperProcess(t *testing.T) {
 		os.Exit(0)
 	case "stubborn":
 		signal.Ignore(syscall.SIGTERM)
-		child := exec.Command("sleep", "60")
+		child := sleeper(60)
 		if err := child.Start(); err != nil {
 			os.Exit(3)
 		}
-		own := exec.Command("sleep", "60")
+		own := sleeper(60)
 		platform.NewGroup(own)
 		if err := own.Start(); err != nil {
 			os.Exit(3)

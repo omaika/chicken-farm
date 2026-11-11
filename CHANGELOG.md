@@ -4,6 +4,8 @@
 
 - Built with Go 1.26.11, which fixes vulnerabilities in `net/http`, `crypto/tls`, `crypto/x509`
   and `net/textproto` that affect Go 1.26.8.
+- Windows: an opencode session finds the daemon. Its plugin looked for `~/.piggery/piggery.sock`,
+  which the daemon does not make there (it listens on a named pipe). Run `piggery setup opencode`.
 - opencode 1.x (tested with 1.18.34), from sting8k/piggery v0.8.0: an opencode session you open
   joins piggery through a plugin, and a team can start opencode workers (`opencode serve`, one per
   worker). Mail wakes an idle session and reaches a busy one at its next step; `abort`, `stop`,
