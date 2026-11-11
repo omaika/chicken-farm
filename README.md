@@ -79,7 +79,7 @@ messages (reading them acks nothing), and Settings for the model and thinking ea
 template role starts workers with, and each template's limits (workers at once, spawn depth). It listens on loopback only (`--addr 127.0.0.1:PORT` for
 another port), and the page carries a token made at each start.
 
-Or build it: `go install github.com/sting8k/piggery/cmd/piggery@latest` (Go 1.26+).
+Or [build it from source](#build-from-source).
 `piggery update` installs a newer release. Every release has a `checksums.txt`; what changed is in
 [CHANGELOG.md](CHANGELOG.md).
 
@@ -112,10 +112,18 @@ Make your own: `piggery template new mine --from slp`, then edit
 
 ## Build from source
 
+Go 1.26+:
+
 ```sh
-go build ./cmd/piggery
+git clone https://github.com/omaika/chicken-farm
+cd chicken-farm
+go install ./cmd/piggery   # into $(go env GOPATH)/bin; or go build ./cmd/piggery for ./piggery
 go test ./...
 ```
+
+Run it from the clone: the module path is `github.com/sting8k/piggery`, so a remote
+`go install …@latest` fetches upstream piggery, not this repo. The result reports version `dev`;
+`piggery update --force` replaces it with the latest release.
 
 ## License
 

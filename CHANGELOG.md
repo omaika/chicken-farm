@@ -4,6 +4,9 @@
 
 - Built with Go 1.26.11, which fixes vulnerabilities in `net/http`, `crypto/tls`, `crypto/x509`
   and `net/textproto` that affect Go 1.26.8.
+- Docs: build from source now starts from a clone of this repo (`go install ./cmd/piggery`); the old
+  `go install github.com/sting8k/piggery/cmd/piggery@latest` installed upstream piggery instead. The
+  template diagrams in manifests/README.md now show every mail and spawn relation their yaml allows.
 - Windows: an opencode session finds the daemon. Its plugin looked for `~/.piggery/piggery.sock`,
   which the daemon does not make there (it listens on a named pipe). Run `piggery setup opencode`.
 - opencode 1.x (tested with 1.18.34), from sting8k/piggery v0.8.0: an opencode session you open

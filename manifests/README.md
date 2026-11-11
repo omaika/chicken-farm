@@ -31,7 +31,9 @@ flowchart LR
     A["peer"] <--> B["peer"]
     B <--> C["peer"]
     A <--> C
-    A -. starts .-> C
+    A -. starts .-> B
+    B -. starts .-> C
+    C -. starts .-> A
 ```
 
 ## supervisor-executor
@@ -72,7 +74,7 @@ flowchart TD
     S <--> L
     L <--> P1
     L <--> P2
-    S -- "a word to a peer<br/>(the lead gets a copy)" --> P1
+    S -- "a word to a peer<br/>(the lead gets a copy)" --> P1 & P2
 ```
 
 The supervisor may tell a peer something directly, but the lead always gets a copy, so the lane's
@@ -113,6 +115,8 @@ flowchart TD
     H(["You"]) --> L["lead<br/>does the work"]
     L -. "starts, asks once" .-> O["oracle<br/>hard reasoning, reads only"]
     L -. "starts, asks once" .-> R["reviewer<br/>reviews one diff, reads only"]
+    L -- brief --> O
+    L -- brief --> R
     O -- advice --> L
     R -- review --> L
 ```
@@ -141,11 +145,11 @@ flowchart TD
     M -. "starts, own worktree" .-> P1["polecat<br/>one task, one branch"]
     M -. "starts, own worktree" .-> P2["polecat<br/>one task, one branch"]
     M -. "starts once" .-> RF["refinery<br/>merge queue"]
-    P1 -- "mr (merge request)" --> RF
-    P2 -- "mr" --> RF
-    RF -- "rework" --> P1
-    RF -- "merged" --> M
-    RF --> IB[("integration branch")]
+    M <--> P1
+    M <--> P2
+    M <-- "merged" --> RF
+    P1 & P2 <-- "mr (merge request) / rework<br/>(the mayor gets a copy)" --> RF
+    RF -- "merges into" --- IB[("integration branch")]
 ```
 
 The mayor gets a copy of every merge request and every rework, so it always knows where each task
